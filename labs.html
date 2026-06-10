@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medline Neethi Lab - Precision Reagent Ledger & Quick-Log Panel</title>
+    <style>
+        :root {
+            --primary: #0f4c5c;
+            --primary-light: #e5f1f4;
+            --accent: #e36414;
+            --bg-main: #f4f6f9;
+            --bg-card: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --success: #2a9d8f;
+            --danger: #e76f51;
+            --border: #cbd5e1;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1d3557 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(15, 76, 92, 0.15);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-info h1 { margin: 0; font-size: 2.2rem; font-weight: 800; }
+        .header-info p { margin: 6px 0 0 0; opacity: 0.9; font-size: 1.1rem; }
+
+        .branch-selector-zone {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .branch-selector-zone label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #e9c46a;
+        }
+
+        .branch-dropdown {
+            padding: 10px 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            color: var(--text-dark);
+            background-color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            padding: 20px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border-top: 4px solid var(--border);
+        }
+
+        .kpi-card h3 { margin: 0 0 10px 0; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); }
+        .kpi-card .value { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; }
+        .currency { font-family: monospace; font-weight: 700; }
+
+        .quick-actions-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .quick-btn {
+            background: linear-gradient(135deg, #2c7a7b 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 14px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.1s, box-shadow 0.1s;
+            text-align: center;
+        }
+        
+        .quick-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .quick-btn span {
+            display: block;
+            font-size: 0.7rem;
+            opacity: 0.85;
+            font-weight: 500;
+            margin-top: 3px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 430px 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 1150px) { .dashboard { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            margin-bottom: 30px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 10px;
+        }
+
+        fieldset {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+
+        legend {
+            padding: 0 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .finance-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+
+        .finance-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 11px 0;
+            border-bottom: 1px dashed var(--border);
+            font-size: 0.95rem;
+        }
+
+        .finance-list li span { color: var(--text-muted); }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; font-size: 0.95rem;
+        }
+        .form-row-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        button.primary-submit {
+            width: 100%; background-color: var(--primary); color: white; border: none; padding: 14px;
+            font-size: 1rem; font-weight: 700; border-radius: 6px; cursor: pointer; transition: background 0.2s;
+            margin-bottom: 10px;
+        }
+        button.primary-submit:hover { background-color: #1d3557; }
+        
+        button.export-btn {
+            width: 100%; background-color: var(--success); color: white; border: none; padding: 14px;
+            font-size: 1rem; font-weight: 700; border-radius: 6px; cursor: pointer; margin-bottom: 10px;
+        }
+        button.export-btn:hover { background-color: #1f7a6f; }
+
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 10px; }
+        th { background-color: var(--primary-light); color: var(--primary); padding: 12px; text-align: left; border-bottom: 2px solid var(--border); }
+        td { padding: 12px; border-bottom: 1px solid #edf2f7; }
+        tr:hover td { background-color: #f8fafc; }
+
+        .badge { padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; display: inline-block; }
+        .badge-success { background-color: #dcfce7; color: #15803d; }
+        .badge-danger { background-color: #fee2e2; color: #991b1b; }
+        
+        .purge-btn { background: transparent; color: var(--text-muted); border: 1px dashed var(--border); font-size: 0.8rem; padding: 8px; margin-top: 15px; width: 100%; border-radius: 6px; cursor: pointer; }
+        .purge-btn:hover { color: var(--danger); border-color: var(--danger); background: #fff5f5; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="header-info">
+            <h1>Medline Neethi Lab</h1>
+            <p>High-Speed Quick Log & Financial Reagent Terminal</p>
+        </div>
+        <div class="branch-selector-zone">
+            <label for="branchSelect">Branch Ledger Location</label>
+            <select id="branchSelect" class="branch-dropdown" onchange="handleBranchChange()">
+                <option value="Iritty">Iritty (Unity Complex)</option>
+                <option value="Perambra">Perambra (Near Dheeja Hospital)</option>
+                <option value="Chokli">Chokli (Illikunnummal Arcade)</option>
+                <option value="Kakkattil">Kakkattil (City Central Mall)</option>
+                <option value="Mattannur">Mattannur (Hilal Complex)</option>
+                <option value="Chakkarakkal">Chakkarakkal (Noble Arcade)</option>
+                <option value="Thamarassery">Thamarassery (Fathima Complex)</option>
+            </select>
+        </div>
+    </header>
+
+    <div class="kpi-container">
+        <div class="kpi-card" style="border-top-color: var(--primary);">
+            <h3>Gross Sales Yield</h3>
+            <div class="value currency" id="kpiGross" style="color: var(--primary);">₹0.00</div>
+        </div>
+        <div class="kpi-card" id="cardNet">
+            <h3>Net Operating Profit</h3>
+            <div class="value currency" id="kpiNet">₹0.00</div>
+        </div>
+        <div class="kpi-card" style="border-top-color: var(--accent);">
+            <h3>Total Reagent Consumed</h3>
+            <div class="value" id="kpiReagent" style="color: var(--accent);">0 mL</div>
+        </div>
+        <div class="kpi-card" style="border-top-color: var(--text-muted);">
+            <h3>Cumulative Tests Tracked</h3>
+            <div class="value" id="kpiTests" style="color: var(--text-dark);">0 Runs</div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 25px; padding: 20px;">
+        <h3 style="margin: 0 0 15px 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary);">High-Volume Production Quick-Log (1-Click Run)</h3>
+        <div class="quick-actions-bar">
+            <button class="quick-btn" onclick="executeQuickLog('Blood Sugar (FBS, PPBS)', 10)">
+                + Blood Sugar
+                <span>Uses 10 mL Baseline</span>
+            </button>
+            <button class="quick-btn" onclick="executeQuickLog('CBC (28 Test) + ESR', 15)">
+                + CBC + ESR
+                <span>Uses 15 mL Baseline</span>
+            </button>
+            <button class="quick-btn" onclick="executeQuickLog('Lipid Profile', 20)">
+                + Lipid Profile
+                <span>Uses 20 mL Baseline</span>
+            </button>
+            <button class="quick-btn" onclick="executeQuickLog('Liver Function', 25)">
+                + Liver Function
+                <span>Uses 25 mL Baseline</span>
+            </button>
+            <button class="quick-btn" onclick="executeQuickLog('Kidney Function (RFT)', 20)">
+                + Kidney Function
+                <span>Uses 20 mL Baseline</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        
+        <div class="sidebar">
+            <div class="card">
+                <h2>Branch Treasury Summary</h2>
+                <ul class="finance-list">
+                    <li><span>Gross Sales Intake:</span><strong class="currency" id="stmtGross">₹0.00</strong></li>
+                    <li><span>Fluid Consumption Cost:</span><strong class="currency" id="stmtCost" style="color: var(--danger);">₹0.00</strong></li>
+                    <li><span>Fixed Lab Overhead:</span><strong class="currency" id="stmtOverhead" style="color: var(--danger);">₹0.00</strong></li>
+                    <li style="border-top: 2px solid var(--border); padding-top: 15px;">
+                        <span>Net Operating Margin:</span><strong class="currency" id="stmtNet" style="font-size: 1.1rem;">₹0.00</strong>
+                    </li>
+                </ul>
+                <button class="export-btn" onclick="exportToExcelCSV()">Export Day Ledger to Excel</button>
+            </div>
+
+            <div class="card">
+                <h2>Log Custom Operational Run</h2>
+                <form id="opsForm">
+                    <fieldset>
+                        <legend>Diagnostic Selection</legend>
+                        <div class="form-group">
+                            <label for="testItem">Select Evaluated Test / Package</label>
+                            <select id="testItem" onchange="autoSwitchTargetReagent()" required></select>
+                        </div>
+                    </fieldset>
+
+                    <fieldset style="border-color: var(--accent);">
+                        <legend style="color: var(--accent);">Reagent & Scale Inputs</legend>
+                        <div class="form-group">
+                            <label for="targetReagent">Target Chemical Reagent (Select Dropdown)</label>
+                            <select id="targetReagent" onchange="displayCostPerMlHint()" style="font-weight:700;" required></select>
+                            <small id="costHint" style="color: var(--text-muted); display:block; margin-top:5px; font-weight:600;"></small>
+                        </div>
+                        <div class="form-row-split">
+                            <div class="form-group">
+                                <label for="testQty">Batch Runs Count</label>
+                                <input type="number" id="testQty" min="1" value="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="consumedMl">Manual Usage (mL)</label>
+                                <input type="number" id="consumedMl" min="0" value="10" placeholder="Type mL" required>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="primary-submit">Commit Run to Ledger</button>
+                </form>
+                <button class="purge-btn" onclick="resetBranchData()">Reset Branch Financials & Stocks</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card" style="border-left: 4px solid var(--accent);">
+                <h2>Chemical Reagent Stocks Inventory (With Cost Matrix Per mL)</h2>
+                <div class="table-responsive">
+                    <table id="reagentTable">
+                        <thead>
+                            <tr>
+                                <th>Reagent Chemical Assay</th>
+                                <th>Cost / mL</th>
+                                <th>Allocated Base Stock</th>
+                                <th>Total Volume Consumed</th>
+                                <th>Remaining Stock Balance</th>
+                                <th>Supply Status</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Batch Production History & Revenue Log Sheets</h2>
+                <div class="table-responsive">
+                    <table id="batchTable">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Diagnostic Panel</th>
+                                <th>Runs</th>
+                                <th>Billed Revenue</th>
+                                <th>Calculated Vol. Cost</th>
+                                <th>Reagent Used</th>
+                                <th>Volume</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const branchRegistry = {
+        "Iritty": { overhead: 2500 },
+        "Perambra": { overhead: 2200 },
+        "Chokli": { overhead: 1800 },
+        "Kakkattil": { overhead: 2800 },
+        "Mattannur": { overhead: 3000 },
+        "Chakkarakkal": { overhead: 2000 },
+        "Thamarassery": { overhead: 2400 }
+    };
+
+    const masterCatalog = {
+        "Blood Sugar (FBS, PPBS)": { sp: 30, chemical: "Glucose Oxidase Reagent" },
+        "Cholesterol": { sp: 120, chemical: "Cholesterol Esterase Fluid" },
+        "Lipid Profile": { sp: 500, chemical: "Cholesterol Esterase Fluid" },
+        "Kidney Function (RFT)": { sp: 400, chemical: "RFT Buffer Solution" },
+        "Liver Function": { sp: 550, chemical: "LFT Reactive Fluid Enzyme" },
+        "CBC (28 Test) + ESR": { sp: 300, chemical: "CBC Lysing Reagent & Diluent" },
+        "HIV": { sp: 350, chemical: "Immunology Substrate Liquid" },
+        "HBSAG": { sp: 300, chemical: "Immunology Substrate Liquid" },
+        "HCV": { sp: 600, chemical: "Immunology Substrate Liquid" },
+        "VDRL": { sp: 200, chemical: "Flocculation Antigen Emulsion" },
+        "TSH": { sp: 200, chemical: "Hormone Immunoassay Buffer" },
+        "TFT": { sp: 350, chemical: "Hormone Immunoassay Buffer" },
+        "FT4, TSH": { sp: 350, chemical: "Hormone Immunoassay Buffer" },
+        "Vitamin D": { sp: 1200, chemical: "Chemiluminescence Reagent A" },
+        "PSA": { sp: 500, chemical: "Chemiluminescence Reagent B" },
+        "Urine Routine Examination": { sp: 120, chemical: "Urine Analysis Test Strips" },
+        "ECG (12 Channel)": { sp: 200, chemical: "Thermal Print Matrix Film" },
+        "HBA1C": { sp: 600, chemical: "HBA1C Hemolysate Reagent" },
+        "Creatine": { sp: 140, chemical: "RFT Buffer Solution" },
+        "Uric Acid": { sp: 140, chemical: "RFT Buffer Solution" },
+        "Blood Urea": { sp: 140, chemical: "RFT Buffer Solution" },
+        "TG Triglycerides": { sp: 200, chemical: "Cholesterol Esterase Fluid" },
+        "Phosphorus": { sp: 170, chemical: "LFT Reactive Fluid Enzyme" },
+        "ALP": { sp: 200, chemical: "LFT Reactive Fluid Enzyme" },
+        "OGTT": { sp: 350, chemical: "Glucose Oxidase Reagent" },
+        "Complete Health Checkup": { sp: 500, chemical: "Multi-Assay Package Pack" },
+        "Diabetic Profile Package": { sp: 1050, chemical: "Multi-Assay Package Pack" },
+        "Medline Deluxe Health Package": { sp: 1100, chemical: "Multi-Assay Package Pack" }
+    };
+
+    const baseReagentStock = {
+        "Glucose Oxidase Reagent": { initialVolume: 5000, costPerMl: 1.00 },
+        "Cholesterol Esterase Fluid": { initialVolume: 4000, costPerMl: 4.00 },
+        "RFT Buffer Solution": { initialVolume: 4000, costPerMl: 3.50 },
+        "LFT Reactive Fluid Enzyme": { initialVolume: 4000, costPerMl: 5.50 },
+        "CBC Lysing Reagent & Diluent": { initialVolume: 6000, xcostPerMl: 2.00 },
+        "Immunology Substrate Liquid": { initialVolume: 3000, costPerMl: 5.00 },
+        "Flocculation Antigen Emulsion": { initialVolume: 2000, costPerMl: 3.50 },
+        "Hormone Immunoassay Buffer": { initialVolume: 3000, costPerMl: 8.00 },
+        "Chemiluminescence Reagent A": { initialVolume: 2000, costPerMl: 15.00 },
+        "Chemiluminescence Reagent B": { initialVolume: 2000, costPerMl: 12.50 },
+        "Urine Analysis Test Strips": { initialVolume: 1500, costPerMl: 3.00 },
+        "Thermal Print Matrix Film": { initialVolume: 1000, costPerMl: 8.00 },
+        "HBA1C Hemolysate Reagent": { initialVolume: 2500, costPerMl: 10.00 },
+        "Multi-Assay Package Pack": { initialVolume: 3500, costPerMl: 6.00 }
+    };
+
+    let currentBranch = "Iritty";
+    let stateHistory = [];
+    let stateReagentLedger = {};
+
+    function loadBranchData(branchName) {
+        currentBranch = branchName;
+        stateHistory = JSON.parse(localStorage.getItem(`med_v6_hist_${branchName}`)) || [];
+        stateReagentLedger = JSON.parse(localStorage.getItem(`med_v6_reag_${branchName}`)) || {};
+
+        Object.keys(baseReagentStock).forEach(chem => {
+            if (stateReagentLedger[chem] === undefined) stateReagentLedger[chem] = 0;
+        });
+
+        populateDropdowns();
+        autoSwitchTargetReagent();
+        calculateEverything();
+    }
+
+    function saveBranchData() {
+        localStorage.setItem(`med_v6_hist_${currentBranch}`, JSON.stringify(stateHistory));
+        localStorage.setItem(`med_v6_reag_${currentBranch}`, JSON.stringify(stateReagentLedger));
+    }
+
+    function handleBranchChange() {
+        loadBranchData(document.getElementById("branchSelect").value);
+    }
+
+    function populateDropdowns() {
+        const testSelect = document.getElementById("testItem");
+        testSelect.innerHTML = "";
+        Object.keys(masterCatalog).forEach(item => {
+            const op = document.createElement("option");
+            op.value = item; op.innerText = item; testSelect.appendChild(op);
+        });
+
+        const reagentSelect = document.getElementById("targetReagent");
+        reagentSelect.innerHTML = "";
+        Object.keys(baseReagentStock).forEach(chem => {
+            const op = document.createElement("option");
+            op.value = chem; op.innerText = chem; reagentSelect.appendChild(op);
+        });
+    }
+
+    function autoSwitchTargetReagent() {
+        const item = document.getElementById("testItem").value;
+        if(masterCatalog[item]) {
+            document.getElementById("targetReagent").value = masterCatalog[item].chemical;
+        }
+        displayCostPerMlHint();
+    }
+
+    function displayCostPerMlHint() {
+        const selectedChem = document.getElementById("targetReagent").value;
+        if(baseReagentStock[selectedChem]) {
+            const rate = baseReagentStock[selectedChem].costPerMl;
+            document.getElementById("costHint").innerText = `System Rate: ₹${rate.toFixed(2)} cost per 1 mL`;
+        }
+    }
+
+    function calculateEverything() {
+        let grossSales = 0;
+        let totalFluidCostCalculated = 0;
+        let cumulativeReagentMl = 0;
+        let totalTestsRun = 0;
+        const currentOverhead = branchRegistry[currentBranch].overhead;
+
+        const bTbody = document.querySelector("#batchTable tbody");
+        bTbody.innerHTML = "";
+
+        for(let i = stateHistory.length - 1; i >= 0; i--) {
+            const entry = stateHistory[i];
+            grossSales += entry.rev;
+            totalFluidCostCalculated += entry.cos;
+            totalTestsRun += entry.qty;
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td style="color: var(--text-muted); font-size:0.85rem;">${entry.stamp}</td>
+                <td><strong>${entry.name}</strong></td>
+                <td>${entry.qty}</td>
+                <td class="currency">₹${entry.rev.toFixed(2)}</td>
+                <td class="currency" style="color: var(--danger);">₹${entry.cos.toFixed(2)}</td>
+                <td><span style="font-weight: 600; color: var(--primary);">${entry.chem}</span></td>
+                <td style="color: var(--accent); font-weight:700;">${entry.ml} mL</td>
+            `;
+            bTbody.appendChild(row);
+        }
+
+        const rTbody = document.querySelector("#reagentTable tbody");
+        rTbody.innerHTML = "";
+
+        for (const [chemical, data] of Object.entries(baseReagentStock)) {
+            const loggedConsumption = stateReagentLedger[chemical] || 0;
+            const remainingBalance = data.initialVolume - loggedConsumption;
+            cumulativeReagentMl += loggedConsumption;
+
+            const lowStockAlert = remainingBalance < 500;
+            const badge = lowStockAlert ? `<span class="badge badge-danger">⚠️ LOW SUPPLY</span>` : `<span class="badge badge-success">OK</span>`;
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td><strong>${chemical}</strong></td>
+                <td class="currency" style="color: var(--text-muted);">₹${data.costPerMl.toFixed(2)}</td>
+                <td>${data.initialVolume} mL</td>
+                <td style="color: var(--accent); font-weight:700;">${loggedConsumption} mL</td>
+                <td style="font-weight:800; color: ${lowStockAlert ? 'var(--danger)' : 'var(--text-dark)'}">${remainingBalance} mL</td>
+                <td>${badge}</td>
+            `;
+            rTbody.appendChild(row);
+        }
+
+        const netProfit = grossSales - (totalFluidCostCalculated + currentOverhead);
+
+        document.getElementById("kpiGross").innerText = `₹${grossSales.toFixed(2)}`;
+        document.getElementById("kpiNet").innerText = `₹${netProfit.toFixed(2)}`;
+        document.getElementById("kpiReagent").innerText = `${cumulativeReagentMl} mL`;
+        document.getElementById("kpiTests").innerText = `${totalTestsRun} Runs`;
+
+        document.getElementById("stmtGross").innerText = `₹${grossSales.toFixed(2)}`;
+        document.getElementById("stmtCost").innerText = `₹${totalFluidCostCalculated.toFixed(2)}`;
+        document.getElementById("stmtOverhead").innerText = `₹${currentOverhead.toFixed(2)}`;
+        
+        const stmtNet = document.getElementById("stmtNet");
+        stmtNet.innerText = `₹${netProfit.toFixed(2)}`;
+        stmtNet.style.color = netProfit >= 0 ? "var(--success)" : "var(--danger)";
+        document.getElementById("cardNet").style.borderTopColor = netProfit >= 0 ? "var(--success)" : "var(--danger)";
+    }
+
+    function commitToLedger(name, chem, qty, ml) {
+        const pricing = masterCatalog[name];
+        if (!pricing) return;
+
+        const rev = pricing.sp * qty;
+        const fluidRate = baseReagentStock[chem] ? baseReagentStock[chem].costPerMl : 0;
+        const cos = fluidRate * ml;
+
+        const now = new Date();
+        const stamp = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        stateReagentLedger[chem] = (stateReagentLedger[chem] || 0) + ml;
+        stateHistory.push({ stamp, name, qty, rev, cos, chem, ml });
+
+        saveBranchData();
+        calculateEverything();
+    }
+
+    function executeQuickLog(testName, baselineMl) {
+        const linkedChemical = masterCatalog[testName].chemical;
+        commitToLedger(testName, linkedChemical, 1, baselineMl);
+    }
+
+    document.getElementById("opsForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const name = document.getElementById("testItem").value;
+        const chem = document.getElementById("targetReagent").value; 
+        const qty = parseInt(document.getElementById("testQty").value) || 1;
+        const ml = parseInt(document.getElementById("consumedMl").value) || 0;
+
+        commitToLedger(name, chem, qty, ml);
+
+        document.getElementById("testQty").value = "1";
+        document.getElementById("consumedMl").value = "10";
+    });
+
+    // CUSTOM EXCEL EXPORT MATCHING SCREENSHOT 202715
+    function exportToExcelCSV() {
+        if(stateHistory.length === 0) {
+            alert("The tracking history sheet is currently empty. No logs to export.");
+            return;
+        }
+
+        let excelContents = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    table { border-collapse: collapse; }
+                    tr { height: 32pt; }
+                    
+                    /* White background headers with solid black text & border lines */
+                    th { 
+                        background-color: #ffffff; 
+                        color: #000000; 
+                        font-weight: bold; 
+                        font-family: 'Segoe UI', Arial, sans-serif;
+                        font-size: 11pt;
+                        border: 1px solid #cbd5e1;
+                        text-align: left;
+                        padding-left: 10px;
+                        padding-right: 10px;
+                        vertical-align: middle;
+                        white-space: normal !important; /* Allow header titles to break into lines */
+                        word-wrap: break-word;
+                    }
+                    
+                    /* Standard data rows with full multi-line word wrapping */
+                    td { 
+                        border: 1px solid #cbd5e1; 
+                        text-align: left; 
+                        padding-left: 10px; 
+                        padding-right: 10px; 
+                        font-family: 'Segoe UI', Arial, sans-serif; 
+                        font-size: 11pt; 
+                        vertical-align: middle; 
+                    }
+                    
+                    /* Explicit columns wrapping text segments natively inside WPS Office */
+                    .wrap-text { 
+                        white-space: normal !important; 
+                        word-wrap: break-word; 
+                    }
+                    
+                    /* Clean single-line rule for pure numerical structures */
+                    .nowrap-num { 
+                        white-space: nowrap !important; 
+                    }
+                </style>
+            </head>
+            <body>
+                <table>
+                    <colgroup>
+                        <col width="115"> <col width="165"> <col width="110"> <col width="160"> <col width="160"> <col width="185"> <col width="170"> </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Diagnostic<br>Panel</th>
+                            <th>Batch Count</th>
+                            <th>Billed Revenue<br>(INR)</th>
+                            <th>Calculated<br>Fluid Cost<br>(INR)</th>
+                            <th>Assay<br>Chemical<br>Reagent</th>
+                            <th>Consumed<br>Volume (mL)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        stateHistory.forEach(entry => {
+            excelContents += `
+                <tr>
+                    <td class="nowrap-num">${entry.stamp}</td>
+                    <td class="wrap-text">${entry.name}</td>
+                    <td class="nowrap-num">${entry.qty}</td>
+                    <td class="nowrap-num">${entry.rev.toFixed(2)}</td>
+                    <td class="nowrap-num">${entry.cos.toFixed(2)}</td>
+                    <td class="wrap-text">${entry.chem}</td>
+                    <td class="nowrap-num">${entry.ml}</td>
+                </tr>
+            `;
+        });
+
+        excelContents += `
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+
+        const blob = new Blob([excelContents], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+        const temporaryLink = document.createElement("a");
+        const urlUrl = URL.createObjectURL(blob);
+        
+        temporaryLink.setAttribute("href", urlUrl);
+        temporaryLink.setAttribute("download", `Medline_Neethi_Lab_Report_${currentBranch}.xls`);
+        temporaryLink.style.visibility = 'hidden';
+        
+        document.body.appendChild(temporaryLink);
+        temporaryLink.click();
+        document.body.removeChild(temporaryLink);
+    }
+
+    function resetBranchData() {
+        if(confirm(`CRITICAL SYSTEM WARNING: Clear all ledger registers and stock metrics for branch: ${currentBranch}?`)) {
+            localStorage.removeItem(`med_v6_hist_${currentBranch}`);
+            localStorage.removeItem(`med_v6_reag_${currentBranch}`);
+            loadBranchData(currentBranch);
+        }
+    }
+
+    window.onload = function() { loadBranchData("Iritty"); };
+</script>
+</body>
+</html>
