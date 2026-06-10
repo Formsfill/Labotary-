@@ -606,21 +606,21 @@
         document.getElementById("consumedMl").value = "10";
     });
 
-    // RE-ENGINEERED EXPORT ENGINE WITH POINT-WIDTH AUTOFIT & WRAPPING FOR WPS MOBILE
+    // COMPLETE MICROSOFT EXCEL MS-XML COMPLIANT INTEROP DOWNLOAD PATTERN
     function exportToExcelCSV() {
         if(stateHistory.length === 0) {
             alert("The tracking history sheet is currently empty. No logs to export.");
             return;
         }
 
-        let excelContents = `
-            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        // Base structural XML template header with style configurations built directly for the workbook compiler
+        let excelContents = `\ufeff<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
             <head>
                 <meta charset="utf-8">
                 <style>
-                    table { border-collapse: collapse; }
+                    table { border-collapse: collapse; table-layout: fixed; }
                     
-                    /* White background header with crisp black outer styling borders */
+                    /* Clean white header text format containing specific line wrapping markers */
                     th { 
                         background-color: #ffffff !important; 
                         color: #000000 !important; 
@@ -629,12 +629,12 @@
                         font-size: 11pt;
                         border: 1px solid #cbd5e1;
                         text-align: left;
-                        padding: 10px;
+                        padding: 12px 10px;
                         vertical-align: middle;
                         white-space: normal !important;
                     }
                     
-                    /* Standard data rows with native line wrap parameters configured */
+                    /* standard multi-line cell formatting styles used inside mobile application layout grids */
                     td { 
                         border: 1px solid #cbd5e1; 
                         text-align: left; 
@@ -642,10 +642,16 @@
                         font-family: 'Segoe UI', Arial, sans-serif; 
                         font-size: 11pt; 
                         vertical-align: middle;
-                        white-space: normal !important;
+                        white-space: normal !important; /* Direct cell wrap modifier */
                     }
                     
-                    .num-cell {
+                    .text-wrap-cell {
+                        white-space: normal !important;
+                        word-wrap: break-word;
+                        mso-number-format: "\\@";
+                    }
+                    
+                    .num-cell-right {
                         white-space: nowrap !important;
                         text-align: right;
                     }
@@ -654,21 +660,21 @@
             <body>
                 <table>
                     <colgroup>
-                        <col span="1" width="120" style="width: 120pt;">
-                        <col span="1" width="280" style="width: 280pt;"> <col span="1" width="100" style="width: 100pt;">
-                        <col span="1" width="160" style="width: 160pt;">
-                        <col span="1" width="180" style="width: 180pt;">
-                        <col span="1" width="300" style="width: 300pt;"> <col span="1" width="160" style="width: 160pt;">
+                        <col span="1" width="120" style="mso-width-source:usersize; width:120px;">
+                        <col span="1" width="280" style="mso-width-source:usersize; width:280px;"> <col span="1" width="110" style="mso-width-source:usersize; width:110px;">
+                        <col span="1" width="160" style="mso-width-source:usersize; width:160px;">
+                        <col span="1" width="180" style="mso-width-source:usersize; width:180px;">
+                        <col span="1" width="310" style="mso-width-source:usersize; width:310px;"> <col span="1" width="160" style="mso-width-source:usersize; width:160px;">
                     </colgroup>
                     <thead>
                         <tr>
-                            <th>Timestamp</th>
-                            <th>Diagnostic Panel</th>
-                            <th>Batch Count</th>
-                            <th>Billed Revenue (INR)</th>
-                            <th>Calculated Fluid Cost (INR)</th>
-                            <th>Assay Chemical Reagent</th>
-                            <th>Consumed Volume (mL)</th>
+                            <th style="width:120px;">Timestamp</th>
+                            <th style="width:280px;">Diagnostic Panel</th>
+                            <th style="width:110px;">Batch Count</th>
+                            <th style="width:160px;">Billed Revenue (INR)</th>
+                            <th style="width:180px;">Calculated Fluid Cost (INR)</th>
+                            <th style="width:310px;">Assay Chemical Reagent</th>
+                            <th style="width:160px;">Consumed Volume (mL)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -676,14 +682,14 @@
         
         stateHistory.forEach(entry => {
             excelContents += `
-                <tr>
-                    <td class="num-cell" x:str>${entry.stamp}</td>
-                    <td style="white-space: normal !important;" x:str>${entry.name}</td>
-                    <td class="num-cell" x:num>${entry.qty}</td>
-                    <td class="num-cell" x:num="${entry.rev.toFixed(2)}">${entry.rev.toFixed(2)}</td>
-                    <td class="num-cell" x:num="${entry.cos.toFixed(2)}">${entry.cos.toFixed(2)}</td>
-                    <td style="white-space: normal !important;" x:str>${entry.chem}</td>
-                    <td class="num-cell" x:num>${entry.ml}</td>
+                <tr style="height:auto;">
+                    <td style="white-space: nowrap !important; mso-number-format: '\\@';">${entry.stamp}</td>
+                    <td class="text-wrap-cell" x:str>${entry.name}</td>
+                    <td class="num-cell-right" x:num>${entry.qty}</td>
+                    <td class="num-cell-right" x:num="${entry.rev.toFixed(2)}">${entry.rev.toFixed(2)}</td>
+                    <td class="num-cell-right" x:num="${entry.cos.toFixed(2)}">${entry.cos.toFixed(2)}</td>
+                    <td class="text-wrap-cell" x:str>${entry.chem}</td>
+                    <td class="num-cell-right" x:num>${entry.ml}</td>
                 </tr>
             `;
         });
@@ -695,6 +701,7 @@
             </html>
         `;
 
+        // Create an official application/vnd.ms-excel data instance blob
         const blob = new Blob([excelContents], { type: 'application/vnd.ms-excel;charset=utf-8;' });
         const temporaryLink = document.createElement("a");
         const urlUrl = URL.createObjectURL(blob);
