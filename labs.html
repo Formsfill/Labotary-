@@ -606,7 +606,7 @@
         document.getElementById("consumedMl").value = "10";
     });
 
-    // FIXED AUTO-FIT WIDTH EXCEL ENGINE FOR WPS OFFICE
+    // RE-ENGINEERED EXPORT ENGINE WITH POINT-WIDTH AUTOFIT & WRAPPING FOR WPS MOBILE
     function exportToExcelCSV() {
         if(stateHistory.length === 0) {
             alert("The tracking history sheet is currently empty. No logs to export.");
@@ -618,9 +618,9 @@
             <head>
                 <meta charset="utf-8">
                 <style>
-                    table { border-collapse: collapse; table-layout: fixed; }
+                    table { border-collapse: collapse; }
                     
-                    /* White background headers with crisp black border profiles */
+                    /* White background header with crisp black outer styling borders */
                     th { 
                         background-color: #ffffff !important; 
                         color: #000000 !important; 
@@ -629,60 +629,46 @@
                         font-size: 11pt;
                         border: 1px solid #cbd5e1;
                         text-align: left;
-                        padding: 8px 10px;
+                        padding: 10px;
                         vertical-align: middle;
                         white-space: normal !important;
-                        mso-number-format: "\\@";
                     }
                     
-                    /* Universal row data attributes */
+                    /* Standard data rows with native line wrap parameters configured */
                     td { 
                         border: 1px solid #cbd5e1; 
                         text-align: left; 
-                        padding: 8px 10px; 
+                        padding: 10px; 
                         font-family: 'Segoe UI', Arial, sans-serif; 
                         font-size: 11pt; 
-                        vertical-align: middle; 
+                        vertical-align: middle;
+                        white-space: normal !important;
                     }
                     
-                    /* Native auto-wrapping configuration blocks for strings */
-                    .wrap-text { 
-                        white-space: normal !important; 
-                        word-wrap: break-word;
-                        mso-number-format: "\\@";
-                    }
-                    
-                    /* Safe non-breaking numerical formatting constraints */
-                    .nowrap-num { 
-                        white-space: nowrap !important; 
-                        mso-number-format: "0\\.00";
-                    }
-                    .nowrap-int { 
-                        white-space: nowrap !important; 
-                        mso-number-format: "0";
+                    .num-cell {
+                        white-space: nowrap !important;
+                        text-align: right;
                     }
                 </style>
             </head>
             <body>
                 <table>
                     <colgroup>
-                        <col width="130" style="mso-width-source:usersize; width:130px;">
-                        <col width="260" style="mso-width-source:usersize; width:260px;">
-                        <col width="110" style="mso-width-source:usersize; width:110px;">
-                        <col width="170" style="mso-width-source:usersize; width:170px;">
-                        <col width="180" style="mso-width-source:usersize; width:180px;">
-                        <col width="280" style="mso-width-source:usersize; width:280px;">
-                        <col width="180" style="mso-width-source:usersize; width:180px;">
+                        <col span="1" width="120" style="width: 120pt;">
+                        <col span="1" width="280" style="width: 280pt;"> <col span="1" width="100" style="width: 100pt;">
+                        <col span="1" width="160" style="width: 160pt;">
+                        <col span="1" width="180" style="width: 180pt;">
+                        <col span="1" width="300" style="width: 300pt;"> <col span="1" width="160" style="width: 160pt;">
                     </colgroup>
                     <thead>
                         <tr>
-                            <th style="width:130px;">Timestamp</th>
-                            <th style="width:260px;">Diagnostic Panel</th>
-                            <th style="width:110px;">Batch Count</th>
-                            <th style="width:170px;">Billed Revenue (INR)</th>
-                            <th style="width:180px;">Calculated Fluid Cost (INR)</th>
-                            <th style="width:280px;">Assay Chemical Reagent</th>
-                            <th style="width:180px;">Consumed Volume (mL)</th>
+                            <th>Timestamp</th>
+                            <th>Diagnostic Panel</th>
+                            <th>Batch Count</th>
+                            <th>Billed Revenue (INR)</th>
+                            <th>Calculated Fluid Cost (INR)</th>
+                            <th>Assay Chemical Reagent</th>
+                            <th>Consumed Volume (mL)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -691,13 +677,13 @@
         stateHistory.forEach(entry => {
             excelContents += `
                 <tr>
-                    <td style="white-space: nowrap !important; mso-number-format: '\\@';">${entry.stamp}</td>
-                    <td class="wrap-text">${entry.name}</td>
-                    <td class="nowrap-int">${entry.qty}</td>
-                    <td class="nowrap-num">${entry.rev.toFixed(2)}</td>
-                    <td class="nowrap-num">${entry.cos.toFixed(2)}</td>
-                    <td class="wrap-text">${entry.chem}</td>
-                    <td class="nowrap-int">${entry.ml}</td>
+                    <td class="num-cell" x:str>${entry.stamp}</td>
+                    <td style="white-space: normal !important;" x:str>${entry.name}</td>
+                    <td class="num-cell" x:num>${entry.qty}</td>
+                    <td class="num-cell" x:num="${entry.rev.toFixed(2)}">${entry.rev.toFixed(2)}</td>
+                    <td class="num-cell" x:num="${entry.cos.toFixed(2)}">${entry.cos.toFixed(2)}</td>
+                    <td style="white-space: normal !important;" x:str>${entry.chem}</td>
+                    <td class="num-cell" x:num>${entry.ml}</td>
                 </tr>
             `;
         });
