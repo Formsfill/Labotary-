@@ -606,34 +606,44 @@
         document.getElementById("consumedMl").value = "10";
     });
 
-    // MOBILE STRUCTURAL MERGE ENGINE (COLSPAN FORCED EXPANSION)
+    // CUSTOM EXCEL GENERATION METHOD FOR CHANNELS WRAPPING PREVENTIONS
     function exportToExcelCSV() {
         if(stateHistory.length === 0) {
             alert("The tracking history sheet is currently empty. No logs to export.");
             return;
         }
 
-        // Structurally merging long text blocks across two columns (colspan=2)
         let excelContents = `
             <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
             <head>
                 <meta charset="utf-8">
                 <style>
                     table { border-collapse: collapse; }
-                    tr { height: 35pt; } /* Expands row vertical breathing room */
-                    th { background-color: #0f4c5c; color: #ffffff; font-weight: bold; }
-                    th, td { border: 1px solid #cbd5e1; text-align: left; padding: 12px; font-family: 'Segoe UI', sans-serif; font-size: 11pt; vertical-align: middle; }
+                    tr { height: 26pt; }
+                    th { background-color: #0f4c5c; color: #ffffff; font-weight: bold; height: 30pt; white-space: nowrap; }
+                    td { border: 1px solid #cbd5e1; text-align: left; padding-left: 10px; padding-right: 10px; font-family: 'Segoe UI', sans-serif; font-size: 11pt; vertical-align: middle; white-space: nowrap; }
                 </style>
             </head>
             <body>
                 <table>
+                    <colgroup>
+                        <col width="110">
+                        <col width="280">
+                        <col width="110">
+                        <col width="180">
+                        <col width="190">
+                        <col width="290">
+                        <col width="180">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>Timestamp</th>
-                            <th colspan="2">Diagnostic Panel</th> <th>Batch Count</th>
+                            <th>Diagnostic Panel</th>
+                            <th>Batch Count</th>
                             <th>Billed Revenue (INR)</th>
                             <th>Calculated Fluid Cost (INR)</th>
-                            <th colspan="2">Assay Chemical Reagent</th> <th>Consumed Volume (mL)</th>
+                            <th>Assay Chemical Reagent</th>
+                            <th>Consumed Volume (mL)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -643,10 +653,12 @@
             excelContents += `
                 <tr>
                     <td>${entry.stamp}</td>
-                    <td colspan="2">${entry.name}</td> <td>${entry.qty}</td>
+                    <td>${entry.name}</td>
+                    <td>${entry.qty}</td>
                     <td>${entry.rev.toFixed(2)}</td>
                     <td>${entry.cos.toFixed(2)}</td>
-                    <td colspan="2">${entry.chem}</td> <td>${entry.ml}</td>
+                    <td>${entry.chem}</td>
+                    <td>${entry.ml}</td>
                 </tr>
             `;
         });
