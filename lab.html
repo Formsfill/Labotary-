@@ -606,7 +606,7 @@
         document.getElementById("consumedMl").value = "10";
     });
 
-    // CUSTOM EXCEL GENERATION METHOD FOR CHANNELS WRAPPING PREVENTIONS
+    // CUSTOM EXCEL MATCHING ORIGINAL HEADINGS ZONE
     function exportToExcelCSV() {
         if(stateHistory.length === 0) {
             alert("The tracking history sheet is currently empty. No logs to export.");
@@ -621,28 +621,28 @@
                     table { border-collapse: collapse; }
                     tr { height: 26pt; }
                     th { background-color: #0f4c5c; color: #ffffff; font-weight: bold; height: 30pt; white-space: nowrap; }
-                    td { border: 1px solid #cbd5e1; text-align: left; padding-left: 10px; padding-right: 10px; font-family: 'Segoe UI', sans-serif; font-size: 11pt; vertical-align: middle; white-space: nowrap; }
+                    td { border: 1px solid #cbd5e1; text-align: left; padding-left: 12px; padding-right: 12px; font-family: 'Segoe UI', sans-serif; font-size: 11pt; vertical-align: middle; white-space: nowrap; }
                 </style>
             </head>
             <body>
                 <table>
                     <colgroup>
                         <col width="110">
-                        <col width="280">
+                        <col width="260">
                         <col width="110">
+                        <col width="150">
                         <col width="180">
-                        <col width="190">
-                        <col width="290">
-                        <col width="180">
+                        <col width="260">
+                        <col width="185">
                     </colgroup>
                     <thead>
                         <tr>
                             <th>Timestamp</th>
                             <th>Diagnostic Panel</th>
                             <th>Batch Count</th>
-                            <th>Billed Revenue (INR)</th>
-                            <th>Calculated Fluid Cost (INR)</th>
-                            <th>Assay Chemical Reagent</th>
+                            <th>Billed Revenue</th>
+                            <th>Calculated Fluid Cost</th>
+                            <th>Assay Chemical</th>
                             <th>Consumed Volume (mL)</th>
                         </tr>
                     </thead>
