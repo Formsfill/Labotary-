@@ -606,34 +606,46 @@
         document.getElementById("consumedMl").value = "10";
     });
 
-    // HIGH FIT EXCEL CONVERSION ENGINE
+    // CUSTOM EXCEL GENERATION: EXPLICIT 2-COLUMN TEXT WRAPPING
     function exportToExcelCSV() {
         if(stateHistory.length === 0) {
             alert("The tracking history sheet is currently empty. No logs to export.");
             return;
         }
 
-        // Generates an interactive Spreadsheet XML format with styling that blocks structural squishing
         let excelContents = `
             <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
             <head>
                 <meta charset="utf-8">
                 <style>
                     table { border-collapse: collapse; }
-                    th { background-color: #0f4c5c; color: #ffffff; font-weight: bold; }
-                    th, td { border: 1px solid #cbd5e1; text-align: left; padding: 10px; font-family: 'Segoe UI', sans-serif; white-space: nowrap; }
+                    tr { height: 28pt; }
+                    th { background-color: #0f4c5c; color: #ffffff; font-weight: bold; height: 32pt; white-space: nowrap; }
+                    
+                    /* Default layout config */
+                    td { border: 1px solid #cbd5e1; text-align: left; padding-left: 12px; padding-right: 12px; font-family: 'Segoe UI', sans-serif; font-size: 11pt; vertical-align: middle; white-space: nowrap; }
+                    
+                    /* Forced multi-line wrap rules for text identifiers */
+                    .wrap-cell { white-space: normal !important; word-wrap: break-word; }
                 </style>
             </head>
             <body>
                 <table>
+                    <colgroup>
+                        <col width="110">
+                        <col width="220"> <col width="110">
+                        <col width="150">
+                        <col width="180">
+                        <col width="240"> <col width="185">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>Timestamp</th>
                             <th>Diagnostic Panel</th>
                             <th>Batch Count</th>
-                            <th>Billed Revenue (INR)</th>
-                            <th>Calculated Fluid Cost (INR)</th>
-                            <th>Assay Chemical Reagent</th>
+                            <th>Billed Revenue</th>
+                            <th>Calculated Fluid Cost</th>
+                            <th>Assay Chemical</th>
                             <th>Consumed Volume (mL)</th>
                         </tr>
                     </thead>
@@ -644,12 +656,10 @@
             excelContents += `
                 <tr>
                     <td>${entry.stamp}</td>
-                    <td>${entry.name}</td>
-                    <td>${entry.qty}</td>
+                    <td class="wrap-cell">${entry.name}</td> <td>${entry.qty}</td>
                     <td>${entry.rev.toFixed(2)}</td>
                     <td>${entry.cos.toFixed(2)}</td>
-                    <td>${entry.chem}</td>
-                    <td>${entry.ml}</td>
+                    <td class="wrap-cell">${entry.chem}</td> <td>${entry.ml}</td>
                 </tr>
             `;
         });
@@ -661,7 +671,6 @@
             </html>
         `;
 
-        // Setting explicit Microsoft Excel application MIME context types drops formatting restrictions instantly
         const blob = new Blob([excelContents], { type: 'application/vnd.ms-excel;charset=utf-8;' });
         const temporaryLink = document.createElement("a");
         const urlUrl = URL.createObjectURL(blob);
