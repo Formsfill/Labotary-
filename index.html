@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -462,4 +461,192 @@
 
     function saveBranchData() {
         localStorage.setItem(`med_v6_hist_${currentBranch}`, JSON.stringify(stateHistory));
-        localStorage.setItem(`med_v6_reag_${currentBranch}`, JSON.stringify(
+        localStorage.setItem(`med_v6_reag_${currentBranch}`, JSON.stringify(stateReagentLedger));
+    }
+
+    function handleBranchChange() {
+        loadBranchData(document.getElementById("branchSelect").value);
+    }
+
+    function populateDropdowns() {
+        const testSelect = document.getElementById("testItem");
+        testSelect.innerHTML = "";
+        Object.keys(masterCatalog).forEach(item => {
+            const op = document.createElement("option");
+            op.value = item; op.innerText = item; testSelect.appendChild(op);
+        });
+
+        const reagentSelect = document.getElementById("targetReagent");
+        reagentSelect.innerHTML = "";
+        Object.keys(baseReagentStock).forEach(chem => {
+            const op = document.createElement("option");
+            op.value = chem; op.innerText = chem; reagentSelect.appendChild(op);
+        });
+    }
+
+    // Dynamic switching when form drops change
+    function autoSwitchTargetReagent() {
+        const item = document.getElementById("testItem").value;
+        if(masterCatalog[item]) {
+            document.getElementById("targetReagent").value = masterCatalog[item].chemical;
+        }
+        displayCostPerMlHint();
+    }
+
+    function displayCostPerMlHint() {
+        const selectedChem = document.getElementById("targetReagent").value;
+        if(baseReagentStock[selectedChem]) {
+            const rate = baseReagentStock[selectedChem].costPerMl;
+            document.getElementById("costHint").innerText = `System Rate: ₹${rate.toFixed(2)} cost per 1 mL`;
+        }
+    }
+
+    function calculateEverything() {
+        let grossSales = 0;
+        let totalFluidCostCalculated = 0;
+        let cumulativeReagentMl = 0;
+        let totalTestsRun = 0;
+        const currentOverhead = branchRegistry[currentBranch].overhead;
+
+        const bTbody = document.querySelector("#batchTable tbody");
+        bTbody.innerHTML = "";
+
+        for(let i = stateHistory.length - 1; i >= 0; i--) {
+            const entry = stateHistory[i];
+            grossSales += entry.rev;
+            totalFluidCostCalculated += entry.cos;
+            totalTestsRun += entry.qty;
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td style="color: var(--text-muted); font-size:0.85rem;">${entry.stamp}</td>
+                <td><strong>${entry.name}</strong></td>
+                <td>${entry.qty}</td>
+                <td class="currency">₹${entry.rev.toFixed(2)}</td>
+                <td class="currency" style="color: var(--danger);">₹${entry.cos.toFixed(2)}</td>
+                <td><span style="font-weight: 600; color: var(--primary);">${entry.chem}</span></td>
+                <td style="color: var(--accent); font-weight:700;">${entry.ml} mL</td>
+            `;
+            bTbody.appendChild(row);
+        }
+
+        const rTbody = document.querySelector("#reagentTable tbody");
+        rTbody.innerHTML = "";
+
+        for (const [chemical, data] of Object.entries(baseReagentStock)) {
+            const loggedConsumption = stateReagentLedger[chemical] || 0;
+            const remainingBalance = data.initialVolume - loggedConsumption;
+            cumulativeReagentMl += loggedConsumption;
+
+            const lowStockAlert = remainingBalance < 500;
+            const badge = lowStockAlert ? `<span class="badge badge-danger">⚠️ LOW SUPPLY</span>` : `<span class="badge badge-success">OK</span>`;
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td><strong>${chemical}</strong></td>
+                <td class="currency" style="color: var(--text-muted);">₹${data.costPerMl.toFixed(2)}</td>
+                <td>${data.initialVolume} mL</td>
+                <td style="color: var(--accent); font-weight:700;">${loggedConsumption} mL</td>
+                <td style="font-weight:800; color: ${lowStockAlert ? 'var(--danger)' : 'var(--text-dark)'}">${remainingBalance} mL</td>
+                <td>${badge}</td>
+            `;
+            rTbody.appendChild(row);
+        }
+
+        const netProfit = grossSales - (totalFluidCostCalculated + currentOverhead);
+
+        document.getElementById("kpiGross").innerText = `₹${grossSales.toFixed(2)}`;
+        document.getElementById("kpiNet").innerText = `₹${netProfit.toFixed(2)}`;
+        document.getElementById("kpiReagent").innerText = `${cumulativeReagentMl} mL`;
+        document.getElementById("kpiTests").innerText = `${totalTestsRun} Runs`;
+
+        document.getElementById("stmtGross").innerText = `₹${grossSales.toFixed(2)}`;
+        document.getElementById("stmtCost").innerText = `₹${totalFluidCostCalculated.toFixed(2)}`;
+        document.getElementById("stmtOverhead").innerText = `₹${currentOverhead.toFixed(2)}`;
+        
+        const stmtNet = document.getElementById("stmtNet");
+        stmtNet.innerText = `₹${netProfit.toFixed(2)}`;
+        stmtNet.style.color = netProfit >= 0 ? "var(--success)" : "var(--danger)";
+        document.getElementById("cardNet").style.borderTopColor = netProfit >= 0 ? "var(--success)" : "var(--danger)";
+    }
+
+    // SHARED ENGINE COMMITTING RUN DATA
+    function commitToLedger(name, chem, qty, ml) {
+        const pricing = masterCatalog[name];
+        if (!pricing) return;
+
+        const rev = pricing.sp * qty;
+        const fluidRate = baseReagentStock[chem] ? baseReagentStock[chem].costPerMl : 0;
+        const cos = fluidRate * ml;
+
+        const now = new Date();
+        const stamp = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        stateReagentLedger[chem] = (stateReagentLedger[chem] || 0) + ml;
+        stateHistory.push({ stamp, name, qty, rev, cos, chem, ml });
+
+        saveBranchData();
+        calculateEverything();
+    }
+
+    // HIGH SPEED 1-CLICK QUICK LOG FUNCTION
+    function executeQuickLog(testName, baselineMl) {
+        const linkedChemical = masterCatalog[testName].chemical;
+        commitToLedger(testName, linkedChemical, 1, baselineMl);
+    }
+
+    // MANUAL LOG REGISTRATION HANDLER
+    document.getElementById("opsForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const name = document.getElementById("testItem").value;
+        const chem = document.getElementById("targetReagent").value; 
+        const qty = parseInt(document.getElementById("testQty").value) || 1;
+        const ml = parseInt(document.getElementById("consumedMl").value) || 0;
+
+        commitToLedger(name, chem, qty, ml);
+
+        document.getElementById("testQty").value = "1";
+        document.getElementById("consumedMl").value = "10";
+    });
+
+    // FIXED PRODUCTION LEVEL EXCEL EXPORTER Logic
+    function exportToExcelCSV() {
+        if(stateHistory.length === 0) {
+            alert("The tracking history sheet is currently empty. No logs to export.");
+            return;
+        }
+
+        // CSV Header String Mapping
+        let csvContents = "Timestamp,Diagnostic Panel,Batch Count,Billed Revenue (INR),Calculated Fluid Cost (INR),Assay Chemical Reagent,Consumed Volume (mL)\r\n";
+        
+        stateHistory.forEach(entry => {
+            csvContents += `"${entry.stamp}","${entry.name}","${entry.qty}","${entry.rev.toFixed(2)}","${entry.cos.toFixed(2)}","${entry.chem}","${entry.ml}"\r\n`;
+        });
+
+        // Prefixing the string with the UTF-8 Byte Order Mark (\ufeff) inside a typed layout array forces Microsoft Excel to format structural divisions immediately
+        const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContents], { type: 'text/csv;charset=utf-8;' });
+        const temporaryLink = document.createElement("a");
+        const urlUrl = URL.createObjectURL(blob);
+        
+        temporaryLink.setAttribute("href", urlUrl);
+        temporaryLink.setAttribute("download", `Medline_Neethi_Lab_Report_${currentBranch}.csv`);
+        temporaryLink.style.visibility = 'hidden';
+        
+        document.body.appendChild(temporaryLink);
+        temporaryLink.click();
+        document.body.removeChild(temporaryLink);
+    }
+
+    function resetBranchData() {
+        if(confirm(`CRITICAL SYSTEM WARNING: Clear all ledger registers and stock metrics for branch: ${currentBranch}?`)) {
+            localStorage.removeItem(`med_v6_hist_${currentBranch}`);
+            localStorage.removeItem(`med_v6_reag_${currentBranch}`);
+            loadBranchData(currentBranch);
+        }
+    }
+
+    window.onload = function() { loadBranchData("Iritty"); };
+</script>
+</body>
+</html>
