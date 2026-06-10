@@ -429,7 +429,7 @@
         "Cholesterol Esterase Fluid": { initialVolume: 4000, costPerMl: 4.00 },
         "RFT Buffer Solution": { initialVolume: 4000, costPerMl: 3.50 },
         "LFT Reactive Fluid Enzyme": { initialVolume: 4000, costPerMl: 5.50 },
-        "CBC Lysing Reagent & Diluent": { initialVolume: 6000, xcostPerMl: 2.00 },
+        "CBC Lysing Reagent & Diluent": { initialVolume: 6000, costPerMl: 2.00 },
         "Immunology Substrate Liquid": { initialVolume: 3000, costPerMl: 5.00 },
         "Flocculation Antigen Emulsion": { initialVolume: 2000, costPerMl: 3.50 },
         "Hormone Immunoassay Buffer": { initialVolume: 3000, costPerMl: 8.00 },
@@ -606,7 +606,7 @@
         document.getElementById("consumedMl").value = "10";
     });
 
-    // CUSTOM EXCEL EXPORT MATCHING SCREENSHOT 202715
+    // FIXED AUTO-FIT WIDTH EXCEL ENGINE FOR WPS OFFICE
     function exportToExcelCSV() {
         if(stateHistory.length === 0) {
             alert("The tracking history sheet is currently empty. No logs to export.");
@@ -618,61 +618,71 @@
             <head>
                 <meta charset="utf-8">
                 <style>
-                    table { border-collapse: collapse; }
-                    tr { height: 32pt; }
+                    table { border-collapse: collapse; table-layout: fixed; }
                     
-                    /* White background headers with solid black text & border lines */
+                    /* White background headers with crisp black border profiles */
                     th { 
-                        background-color: #ffffff; 
-                        color: #000000; 
+                        background-color: #ffffff !important; 
+                        color: #000000 !important; 
                         font-weight: bold; 
                         font-family: 'Segoe UI', Arial, sans-serif;
                         font-size: 11pt;
                         border: 1px solid #cbd5e1;
                         text-align: left;
-                        padding-left: 10px;
-                        padding-right: 10px;
+                        padding: 8px 10px;
                         vertical-align: middle;
-                        white-space: normal !important; /* Allow header titles to break into lines */
-                        word-wrap: break-word;
+                        white-space: normal !important;
+                        mso-number-format: "\\@";
                     }
                     
-                    /* Standard data rows with full multi-line word wrapping */
+                    /* Universal row data attributes */
                     td { 
                         border: 1px solid #cbd5e1; 
                         text-align: left; 
-                        padding-left: 10px; 
-                        padding-right: 10px; 
+                        padding: 8px 10px; 
                         font-family: 'Segoe UI', Arial, sans-serif; 
                         font-size: 11pt; 
                         vertical-align: middle; 
                     }
                     
-                    /* Explicit columns wrapping text segments natively inside WPS Office */
+                    /* Native auto-wrapping configuration blocks for strings */
                     .wrap-text { 
                         white-space: normal !important; 
-                        word-wrap: break-word; 
+                        word-wrap: break-word;
+                        mso-number-format: "\\@";
                     }
                     
-                    /* Clean single-line rule for pure numerical structures */
+                    /* Safe non-breaking numerical formatting constraints */
                     .nowrap-num { 
                         white-space: nowrap !important; 
+                        mso-number-format: "0\\.00";
+                    }
+                    .nowrap-int { 
+                        white-space: nowrap !important; 
+                        mso-number-format: "0";
                     }
                 </style>
             </head>
             <body>
                 <table>
                     <colgroup>
-                        <col width="115"> <col width="165"> <col width="110"> <col width="160"> <col width="160"> <col width="185"> <col width="170"> </colgroup>
+                        <col width="130" style="mso-width-source:usersize; width:130px;">
+                        <col width="260" style="mso-width-source:usersize; width:260px;">
+                        <col width="110" style="mso-width-source:usersize; width:110px;">
+                        <col width="170" style="mso-width-source:usersize; width:170px;">
+                        <col width="180" style="mso-width-source:usersize; width:180px;">
+                        <col width="280" style="mso-width-source:usersize; width:280px;">
+                        <col width="180" style="mso-width-source:usersize; width:180px;">
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th>Timestamp</th>
-                            <th>Diagnostic<br>Panel</th>
-                            <th>Batch Count</th>
-                            <th>Billed Revenue<br>(INR)</th>
-                            <th>Calculated<br>Fluid Cost<br>(INR)</th>
-                            <th>Assay<br>Chemical<br>Reagent</th>
-                            <th>Consumed<br>Volume (mL)</th>
+                            <th style="width:130px;">Timestamp</th>
+                            <th style="width:260px;">Diagnostic Panel</th>
+                            <th style="width:110px;">Batch Count</th>
+                            <th style="width:170px;">Billed Revenue (INR)</th>
+                            <th style="width:180px;">Calculated Fluid Cost (INR)</th>
+                            <th style="width:280px;">Assay Chemical Reagent</th>
+                            <th style="width:180px;">Consumed Volume (mL)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -681,13 +691,13 @@
         stateHistory.forEach(entry => {
             excelContents += `
                 <tr>
-                    <td class="nowrap-num">${entry.stamp}</td>
+                    <td style="white-space: nowrap !important; mso-number-format: '\\@';">${entry.stamp}</td>
                     <td class="wrap-text">${entry.name}</td>
-                    <td class="nowrap-num">${entry.qty}</td>
+                    <td class="nowrap-int">${entry.qty}</td>
                     <td class="nowrap-num">${entry.rev.toFixed(2)}</td>
                     <td class="nowrap-num">${entry.cos.toFixed(2)}</td>
                     <td class="wrap-text">${entry.chem}</td>
-                    <td class="nowrap-num">${entry.ml}</td>
+                    <td class="nowrap-int">${entry.ml}</td>
                 </tr>
             `;
         });
