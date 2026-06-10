@@ -606,35 +606,26 @@
         document.getElementById("consumedMl").value = "10";
     });
 
-    // CUSTOM EXCEL GENERATION METHOD FOR CHANNELS WRAPPING PREVENTIONS
+    // HIGH FIT EXCEL CONVERSION ENGINE
     function exportToExcelCSV() {
         if(stateHistory.length === 0) {
             alert("The tracking history sheet is currently empty. No logs to export.");
             return;
         }
 
+        // Generates an interactive Spreadsheet XML format with styling that blocks structural squishing
         let excelContents = `
             <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
             <head>
                 <meta charset="utf-8">
                 <style>
                     table { border-collapse: collapse; }
-                    tr { height: 26pt; }
-                    th { background-color: #0f4c5c; color: #ffffff; font-weight: bold; height: 30pt; white-space: nowrap; }
-                    td { border: 1px solid #cbd5e1; text-align: left; padding-left: 10px; padding-right: 10px; font-family: 'Segoe UI', sans-serif; font-size: 11pt; vertical-align: middle; white-space: nowrap; }
+                    th { background-color: #0f4c5c; color: #ffffff; font-weight: bold; }
+                    th, td { border: 1px solid #cbd5e1; text-align: left; padding: 10px; font-family: 'Segoe UI', sans-serif; white-space: nowrap; }
                 </style>
             </head>
             <body>
                 <table>
-                    <colgroup>
-                        <col width="110">
-                        <col width="280">
-                        <col width="110">
-                        <col width="180">
-                        <col width="190">
-                        <col width="290">
-                        <col width="180">
-                    </colgroup>
                     <thead>
                         <tr>
                             <th>Timestamp</th>
@@ -670,6 +661,7 @@
             </html>
         `;
 
+        // Setting explicit Microsoft Excel application MIME context types drops formatting restrictions instantly
         const blob = new Blob([excelContents], { type: 'application/vnd.ms-excel;charset=utf-8;' });
         const temporaryLink = document.createElement("a");
         const urlUrl = URL.createObjectURL(blob);
