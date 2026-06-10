@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medline Neethi Lab - Precision Reagent Ledger & Quick-Log Panel</title>
+    <title>Medline Neethi Lab - Precision Reagent Ledger & Financial Export Terminal</title>
     <style>
         :root {
             --primary: #0f4c5c;
@@ -94,40 +94,6 @@
         .kpi-card .value { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; }
         .currency { font-family: monospace; font-weight: 700; }
 
-        .quick-actions-bar {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-
-        .quick-btn {
-            background: linear-gradient(135deg, #2c7a7b 0%, #1d4ed8 100%);
-            color: white;
-            border: none;
-            padding: 14px 10px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.1s, box-shadow 0.1s;
-            text-align: center;
-        }
-        
-        .quick-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-        }
-
-        .quick-btn span {
-            display: block;
-            font-size: 0.7rem;
-            opacity: 0.85;
-            font-weight: 500;
-            margin-top: 3px;
-        }
-
         .dashboard {
             display: grid;
             grid-template-columns: 430px 1fr;
@@ -192,18 +158,19 @@
         }
         .form-row-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        button.primary-submit {
+        button {
             width: 100%; background-color: var(--primary); color: white; border: none; padding: 14px;
             font-size: 1rem; font-weight: 700; border-radius: 6px; cursor: pointer; transition: background 0.2s;
             margin-bottom: 10px;
         }
-        button.primary-submit:hover { background-color: #1d3557; }
+        button:hover { background-color: #1d3557; }
         
         button.export-btn {
-            width: 100%; background-color: var(--success); color: white; border: none; padding: 14px;
-            font-size: 1rem; font-weight: 700; border-radius: 6px; cursor: pointer; margin-bottom: 10px;
+            background-color: var(--success);
         }
-        button.export-btn:hover { background-color: #1f7a6f; }
+        button.export-btn:hover {
+            background-color: #1f7a6f;
+        }
 
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 10px; }
@@ -225,7 +192,7 @@
     <header>
         <div class="header-info">
             <h1>Medline Neethi Lab</h1>
-            <p>High-Speed Quick Log & Financial Reagent Terminal</p>
+            <p>Precision Reagent Tracker & Financial Data Exporter</p>
         </div>
         <div class="branch-selector-zone">
             <label for="branchSelect">Branch Ledger Location</label>
@@ -260,32 +227,6 @@
         </div>
     </div>
 
-    <div class="card" style="margin-bottom: 25px; padding: 20px;">
-        <h3 style="margin: 0 0 15px 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary);">High-Volume Production Quick-Log (1-Click Run)</h3>
-        <div class="quick-actions-bar">
-            <button class="quick-btn" onclick="executeQuickLog('Blood Sugar (FBS, PPBS)', 10)">
-                + Blood Sugar
-                <span>Uses 10 mL Baseline</span>
-            </button>
-            <button class="quick-btn" onclick="executeQuickLog('CBC (28 Test) + ESR', 15)">
-                + CBC + ESR
-                <span>Uses 15 mL Baseline</span>
-            </button>
-            <button class="quick-btn" onclick="executeQuickLog('Lipid Profile', 20)">
-                + Lipid Profile
-                <span>Uses 20 mL Baseline</span>
-            </button>
-            <button class="quick-btn" onclick="executeQuickLog('Liver Function', 25)">
-                + Liver Function
-                <span>Uses 25 mL Baseline</span>
-            </button>
-            <button class="quick-btn" onclick="executeQuickLog('Kidney Function (RFT)', 20)">
-                + Kidney Function
-                <span>Uses 20 mL Baseline</span>
-            </button>
-        </div>
-    </div>
-
     <div class="dashboard">
         
         <div class="sidebar">
@@ -303,7 +244,7 @@
             </div>
 
             <div class="card">
-                <h2>Log Custom Operational Run</h2>
+                <h2>Log Operational Run</h2>
                 <form id="opsForm">
                     <fieldset>
                         <legend>Diagnostic Selection</legend>
@@ -332,7 +273,7 @@
                         </div>
                     </fieldset>
 
-                    <button type="submit" class="primary-submit">Commit Run to Ledger</button>
+                    <button type="submit">Commit Run to Ledger</button>
                 </form>
                 <button class="purge-btn" onclick="resetBranchData()">Reset Branch Financials & Stocks</button>
             </div>
@@ -429,12 +370,12 @@
         "Cholesterol Esterase Fluid": { initialVolume: 4000, costPerMl: 4.00 },
         "RFT Buffer Solution": { initialVolume: 4000, costPerMl: 3.50 },
         "LFT Reactive Fluid Enzyme": { initialVolume: 4000, costPerMl: 5.50 },
-        "CBC Lysing Reagent & Diluent": { initialVolume: 6000, xcostPerMl: 2.00 },
+        "CBC Lysing Reagent & Diluent": { initialVolume: 6000, costPerMl: 2.00 },
         "Immunology Substrate Liquid": { initialVolume: 3000, costPerMl: 5.00 },
         "Flocculation Antigen Emulsion": { initialVolume: 2000, costPerMl: 3.50 },
         "Hormone Immunoassay Buffer": { initialVolume: 3000, costPerMl: 8.00 },
         "Chemiluminescence Reagent A": { initialVolume: 2000, costPerMl: 15.00 },
-        "Chemiluminescence Reagent B": { initialVolume: 2000, costPerMl: 12.50 },
+        "Chemiluminescence Reagent B": { initialVolume: 2000, regionPerMl: 12.50, costPerMl: 12.50 },
         "Urine Analysis Test Strips": { initialVolume: 1500, costPerMl: 3.00 },
         "Thermal Print Matrix Film": { initialVolume: 1000, costPerMl: 8.00 },
         "HBA1C Hemolysate Reagent": { initialVolume: 2500, costPerMl: 10.00 },
@@ -569,11 +510,17 @@
         document.getElementById("cardNet").style.borderTopColor = netProfit >= 0 ? "var(--success)" : "var(--danger)";
     }
 
-    function commitToLedger(name, chem, qty, ml) {
-        const pricing = masterCatalog[name];
-        if (!pricing) return;
+    document.getElementById("opsForm").addEventListener("submit", function(e) {
+        e.preventDefault();
 
+        const name = document.getElementById("testItem").value;
+        const chem = document.getElementById("targetReagent").value; 
+        const qty = parseInt(document.getElementById("testQty").value) || 1;
+        const ml = parseInt(document.getElementById("consumedMl").value) || 0;
+
+        const pricing = masterCatalog[name];
         const rev = pricing.sp * qty;
+        
         const fluidRate = baseReagentStock[chem] ? baseReagentStock[chem].costPerMl : 0;
         const cos = fluidRate * ml;
 
@@ -585,125 +532,59 @@
 
         saveBranchData();
         calculateEverything();
-    }
-
-    function executeQuickLog(testName, baselineMl) {
-        const linkedChemical = masterCatalog[testName].chemical;
-        commitToLedger(testName, linkedChemical, 1, baselineMl);
-    }
-
-    document.getElementById("opsForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-
-        const name = document.getElementById("testItem").value;
-        const chem = document.getElementById("targetReagent").value; 
-        const qty = parseInt(document.getElementById("testQty").value) || 1;
-        const ml = parseInt(document.getElementById("consumedMl").value) || 0;
-
-        commitToLedger(name, chem, qty, ml);
 
         document.getElementById("testQty").value = "1";
         document.getElementById("consumedMl").value = "10";
     });
 
-    // CUSTOM EXCEL EXPORT MATCHING SCREENSHOT 202715
+    // OPTIMIZED EXCEL GENERATOR LOGIC (Ensures zero truncation/hash signs in Excel)
     function exportToExcelCSV() {
         if(stateHistory.length === 0) {
             alert("The tracking history sheet is currently empty. No logs to export.");
             return;
         }
 
-        let excelContents = `
-            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-            <head>
-                <meta charset="utf-8">
-                <style>
-                    table { border-collapse: collapse; }
-                    tr { height: 32pt; }
-                    
-                    /* White background headers with solid black text & border lines */
-                    th { 
-                        background-color: #ffffff; 
-                        color: #000000; 
-                        font-weight: bold; 
-                        font-family: 'Segoe UI', Arial, sans-serif;
-                        font-size: 11pt;
-                        border: 1px solid #cbd5e1;
-                        text-align: left;
-                        padding-left: 10px;
-                        padding-right: 10px;
-                        vertical-align: middle;
-                        white-space: normal !important; /* Allow header titles to break into lines */
-                        word-wrap: break-word;
-                    }
-                    
-                    /* Standard data rows with full multi-line word wrapping */
-                    td { 
-                        border: 1px solid #cbd5e1; 
-                        text-align: left; 
-                        padding-left: 10px; 
-                        padding-right: 10px; 
-                        font-family: 'Segoe UI', Arial, sans-serif; 
-                        font-size: 11pt; 
-                        vertical-align: middle; 
-                    }
-                    
-                    /* Explicit columns wrapping text segments natively inside WPS Office */
-                    .wrap-text { 
-                        white-space: normal !important; 
-                        word-wrap: break-word; 
-                    }
-                    
-                    /* Clean single-line rule for pure numerical structures */
-                    .nowrap-num { 
-                        white-space: nowrap !important; 
-                    }
-                </style>
-            </head>
-            <body>
-                <table>
-                    <colgroup>
-                        <col width="115"> <col width="165"> <col width="110"> <col width="160"> <col width="160"> <col width="185"> <col width="170"> </colgroup>
-                    <thead>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>Diagnostic<br>Panel</th>
-                            <th>Batch Count</th>
-                            <th>Billed Revenue<br>(INR)</th>
-                            <th>Calculated<br>Fluid Cost<br>(INR)</th>
-                            <th>Assay<br>Chemical<br>Reagent</th>
-                            <th>Consumed<br>Volume (mL)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
+        // 1. Create a native pseudo-HTML layout wrapped inside spreadsheet instructions.
+        // This is highly effective because Excel parses standard HTML table column layouts flawlessly on initial launch.
+        let excelContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">`;
+        excelContent += `<head><meta charset="utf-8"/><style>td, th { white-space: nowrap; font-family: 'Segoe UI',sans-serif; text-align: left; }</style></head><body>`;
+        excelContent += `<table border="1">`;
         
+        // Table Headers
+        excelContent += `
+            <tr style="background-color: #0f4c5c; color: #ffffff; font-weight: bold;">
+                <th>Timestamp</th>
+                <th>Diagnostic Panel</th>
+                <th>Batch Count</th>
+                <th>Billed Revenue (INR)</th>
+                <th>Calculated Fluid Cost (INR)</th>
+                <th>Assay Chemical Reagent</th>
+                <th>Consumed Volume (mL)</th>
+            </tr>`;
+        
+        // Map data arrays safely inside elements
         stateHistory.forEach(entry => {
-            excelContents += `
+            excelContent += `
                 <tr>
-                    <td class="nowrap-num">${entry.stamp}</td>
-                    <td class="wrap-text">${entry.name}</td>
-                    <td class="nowrap-num">${entry.qty}</td>
-                    <td class="nowrap-num">${entry.rev.toFixed(2)}</td>
-                    <td class="nowrap-num">${entry.cos.toFixed(2)}</td>
-                    <td class="wrap-text">${entry.chem}</td>
-                    <td class="nowrap-num">${entry.ml}</td>
-                </tr>
-            `;
+                    <td>${entry.stamp}</td>
+                    <td>${entry.name}</td>
+                    <td>${entry.qty}</td>
+                    <td>${entry.rev.toFixed(2)}</td>
+                    <td>${entry.cos.toFixed(2)}</td>
+                    <td>${entry.chem}</td>
+                    <td>${entry.ml}</td>
+                </tr>`;
         });
 
-        excelContents += `
-                    </tbody>
-                </table>
-            </body>
-            </html>
-        `;
+        excelContent += `</table></body></html>`;
 
-        const blob = new Blob([excelContents], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+        // 2. Generate elements using Blob & UTF-8 structure
+        const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
         const temporaryLink = document.createElement("a");
         const urlUrl = URL.createObjectURL(blob);
         
         temporaryLink.setAttribute("href", urlUrl);
+        // Saving directly with .xls forces Excel into full-compatibility auto-scaling mode
         temporaryLink.setAttribute("download", `Medline_Neethi_Lab_Report_${currentBranch}.xls`);
         temporaryLink.style.visibility = 'hidden';
         
