@@ -299,7 +299,7 @@
                         <span>Net Operating Margin:</span><strong class="currency" id="stmtNet" style="font-size: 1.1rem;">₹0.00</strong>
                     </li>
                 </ul>
-                <button class="export-btn" onclick="exportToExcelCSV()">Export Day Ledger to CSV</button>
+                <button class="export-btn" onclick="exportToExcelCSV()">Export Day Ledger to Excel</button>
             </div>
 
             <div class="card">
@@ -429,7 +429,7 @@
         "Cholesterol Esterase Fluid": { initialVolume: 4000, costPerMl: 4.00 },
         "RFT Buffer Solution": { initialVolume: 4000, costPerMl: 3.50 },
         "LFT Reactive Fluid Enzyme": { initialVolume: 4000, costPerMl: 5.50 },
-        "CBC Lysing Reagent & Diluent": { initialVolume: 6000, costPerMl: 2.00 },
+        "CBC Lysing Reagent & Diluent": { initialVolume: 6000, xcostPerMl: 2.00 },
         "Immunology Substrate Liquid": { initialVolume: 3000, costPerMl: 5.00 },
         "Flocculation Antigen Emulsion": { initialVolume: 2000, costPerMl: 3.50 },
         "Hormone Immunoassay Buffer": { initialVolume: 3000, costPerMl: 8.00 },
@@ -484,7 +484,6 @@
         });
     }
 
-    // Dynamic switching when form drops change
     function autoSwitchTargetReagent() {
         const item = document.getElementById("testItem").value;
         if(masterCatalog[item]) {
@@ -570,7 +569,6 @@
         document.getElementById("cardNet").style.borderTopColor = netProfit >= 0 ? "var(--success)" : "var(--danger)";
     }
 
-    // SHARED ENGINE COMMITTING RUN DATA
     function commitToLedger(name, chem, qty, ml) {
         const pricing = masterCatalog[name];
         if (!pricing) return;
@@ -589,13 +587,11 @@
         calculateEverything();
     }
 
-    // HIGH SPEED 1-CLICK QUICK LOG FUNCTION
     function executeQuickLog(testName, baselineMl) {
         const linkedChemical = masterCatalog[testName].chemical;
         commitToLedger(testName, linkedChemical, 1, baselineMl);
     }
 
-    // MANUAL LOG REGISTRATION HANDLER
     document.getElementById("opsForm").addEventListener("submit", function(e) {
         e.preventDefault();
 
@@ -610,27 +606,105 @@
         document.getElementById("consumedMl").value = "10";
     });
 
-    // FIXED PRODUCTION LEVEL EXCEL EXPORTER Logic
+    // CUSTOM EXCEL EXPORT MATCHING SCREENSHOT 202715
     function exportToExcelCSV() {
         if(stateHistory.length === 0) {
             alert("The tracking history sheet is currently empty. No logs to export.");
             return;
         }
 
-        // CSV Header String Mapping
-        let csvContents = "Timestamp,Diagnostic Panel,Batch Count,Billed Revenue (INR),Calculated Fluid Cost (INR),Assay Chemical Reagent,Consumed Volume (mL)\r\n";
+        let excelContents = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    table { border-collapse: collapse; }
+                    tr { height: 32pt; }
+                    
+                    /* White background headers with solid black text & border lines */
+                    th { 
+                        background-color: #ffffff; 
+                        color: #000000; 
+                        font-weight: bold; 
+                        font-family: 'Segoe UI', Arial, sans-serif;
+                        font-size: 11pt;
+                        border: 1px solid #cbd5e1;
+                        text-align: left;
+                        padding-left: 10px;
+                        padding-right: 10px;
+                        vertical-align: middle;
+                        white-space: normal !important; /* Allow header titles to break into lines */
+                        word-wrap: break-word;
+                    }
+                    
+                    /* Standard data rows with full multi-line word wrapping */
+                    td { 
+                        border: 1px solid #cbd5e1; 
+                        text-align: left; 
+                        padding-left: 10px; 
+                        padding-right: 10px; 
+                        font-family: 'Segoe UI', Arial, sans-serif; 
+                        font-size: 11pt; 
+                        vertical-align: middle; 
+                    }
+                    
+                    /* Explicit columns wrapping text segments natively inside WPS Office */
+                    .wrap-text { 
+                        white-space: normal !important; 
+                        word-wrap: break-word; 
+                    }
+                    
+                    /* Clean single-line rule for pure numerical structures */
+                    .nowrap-num { 
+                        white-space: nowrap !important; 
+                    }
+                </style>
+            </head>
+            <body>
+                <table>
+                    <colgroup>
+                        <col width="115"> <col width="165"> <col width="110"> <col width="160"> <col width="160"> <col width="185"> <col width="170"> </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Diagnostic<br>Panel</th>
+                            <th>Batch Count</th>
+                            <th>Billed Revenue<br>(INR)</th>
+                            <th>Calculated<br>Fluid Cost<br>(INR)</th>
+                            <th>Assay<br>Chemical<br>Reagent</th>
+                            <th>Consumed<br>Volume (mL)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
         
         stateHistory.forEach(entry => {
-            csvContents += `"${entry.stamp}","${entry.name}","${entry.qty}","${entry.rev.toFixed(2)}","${entry.cos.toFixed(2)}","${entry.chem}","${entry.ml}"\r\n`;
+            excelContents += `
+                <tr>
+                    <td class="nowrap-num">${entry.stamp}</td>
+                    <td class="wrap-text">${entry.name}</td>
+                    <td class="nowrap-num">${entry.qty}</td>
+                    <td class="nowrap-num">${entry.rev.toFixed(2)}</td>
+                    <td class="nowrap-num">${entry.cos.toFixed(2)}</td>
+                    <td class="wrap-text">${entry.chem}</td>
+                    <td class="nowrap-num">${entry.ml}</td>
+                </tr>
+            `;
         });
 
-        // Prefixing the string with the UTF-8 Byte Order Mark (\ufeff) inside a typed layout array forces Microsoft Excel to format structural divisions immediately
-        const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContents], { type: 'text/csv;charset=utf-8;' });
+        excelContents += `
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+
+        const blob = new Blob([excelContents], { type: 'application/vnd.ms-excel;charset=utf-8;' });
         const temporaryLink = document.createElement("a");
         const urlUrl = URL.createObjectURL(blob);
         
         temporaryLink.setAttribute("href", urlUrl);
-        temporaryLink.setAttribute("download", `Medline_Neethi_Lab_Report_${currentBranch}.csv`);
+        temporaryLink.setAttribute("download", `Medline_Neethi_Lab_Report_${currentBranch}.xls`);
         temporaryLink.style.visibility = 'hidden';
         
         document.body.appendChild(temporaryLink);
